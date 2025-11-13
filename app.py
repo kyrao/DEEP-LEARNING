@@ -118,20 +118,21 @@ with st.container():
                             out = translator(text, max_length=512, src_lang=src_iso, tgt_lang=tgt_iso)
                             result = out[0]["translation_text"] if isinstance(out, list) else out["translation_text"]
                     except Exception: result = ""
-                # --- Output card with feedback buttons ---
+
+                # Output area with safe copy button (uses DOM, no triple-quote variable embedding)
                 st.markdown("<div class='card'>", unsafe_allow_html=True)
-                st.markdown(f"<div class='result'>{result}<button class='copy-btn' id='copy-b'>📋 Copy</button></div>", unsafe_allow_html=True)
-                st.markdown("""
-                <script>
-                    const copybtn = document.getElementById("copy-b");
-                    if (copybtn) {
-                        copybtn.onclick = function() {
-                            navigator.clipboard.writeText("""" + result.replace('"',"") + """");
-                            window.parent.postMessage({type: 'streamlit:toast', message: "Copied to clipboard!"}, "*");
-                        }
-                    }
-                </script>
-                """, unsafe_allow_html=True)
+                # Output section with an id for JavaScript to find:
+                st.markdown(
+                    f"""
+                    <div id='result-text' class='result' style='position:relative;'>{result}
+                    <button class='copy-btn' onclick="
+                        var txt = document.getElementById('result-text').innerText;
+                        navigator.clipboard.writeText(txt);
+                        alert('Copied to clipboard!');
+                    ">📋 Copy</button></div>
+                    """,
+                    unsafe_allow_html=True
+                )
                 # Confidence bar
                 if show_conf:
                     conf = round(max(0.6, 1 - temperature * 0.4), 3)
