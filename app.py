@@ -2,158 +2,215 @@ import streamlit as st
 from transformers import pipeline
 from gtts import gTTS
 import io
+import time
+import streamlit.components.v1 as components
 
-### --- PAGE CONFIG ---
+# -------------------------
+# Page config
+# -------------------------
 st.set_page_config(page_title="Polyglot — AI Translator", page_icon="🌐", layout="wide")
 
-### --- CUSTOM CSS FOR MODERN UI ---
+# -------------------------
+# Language maps
+# -------------------------
+COUNTRY_CODE = {
+    "English": "gb",
+    "Hindi": "in",
+    "French": "fr",
+    "Spanish": "es",
+    "German": "de",
+    "Italian": "it",
+    "Chinese": "cn",
+    "Japanese": "jp",
+    "Korean": "kr",
+}
+
+LANG_ISO = {
+    "English": "en",
+    "Hindi": "hi",
+    "French": "fr",
+    "Spanish": "es",
+    "German": "de",
+    "Italian": "it",
+    "Chinese": "zh",
+    "Japanese": "ja",
+    "Korean": "ko",
+}
+
+# -------------------------
+# Sidebar settings
+# -------------------------
+st.sidebar.title("🌐 Polyglot Settings")
+
+src_lang = st.sidebar.selectbox("Source Language", ["Auto Detect"] + list(COUNTRY_CODE.keys()), index=1)
+tgt_lang = st.sidebar.selectbox("Target Language", list(COUNTRY_CODE.keys()), index=0)
+temperature = st.sidebar.slider("Translation Temperature", 0.0, 1.0, 0.3, 0.05)
+show_conf = st.sidebar.checkbox("Show Confidence Score", value=True)
+enable_tts = st.sidebar.checkbox("Enable Text-to-Speech", value=False)
+
+if st.sidebar.button("↔️ Swap Languages"):
+    src_lang, tgt_lang = tgt_lang, src_lang
+    st.sidebar.success("Languages swapped!")
+
+# -------------------------
+# Custom Styles (Modern Theme)
+# -------------------------
 st.markdown("""
 <style>
-body, [class*="css"] { background-color: #f7f9fa !important; color: #222831 !important; font-family: "Segoe UI", Arial, sans-serif; }
-.stButton>button, .stDownloadButton>button {
-    background: #183153; color: #f7f9fa !important; border-radius: 7px; font-weight: 600; border: none; padding: 0.68em 1.1em;
-    box-shadow: 0 2px 8px rgba(24,49,83,0.10); margin-bottom: 4px;
+html, body, [class*="css"], .block-container {
+    background-color: #f7f9fa !important;
+    color: #222831 !important;
+    font-family: "Segoe UI", Arial, sans-serif !important;
 }
-.stButton>button:hover, .stDownloadButton>button:hover { background: #222831; color: #f7f9fa !important; }
-.stDownloadButton>button { background: #1a2540; padding: 7px 18px; }
-.stProgress>div>div {
-    border-radius: 8px; background: linear-gradient(90deg, #38618c, #b6c5d9);
+.stButton>button {
+    background: #183153;
+    color: #f7f9fa !important;
+    border-radius: 7px;
+    border: none;
+    font-weight: 600;
+    padding: 0.65em 1.1em;
+    transition: background 0.13s;
+    margin-bottom: 2px;
 }
-.card { background: #fff; border-radius: 11px; box-shadow: 0 4px 18px rgba(24,49,83,0.08); margin-bottom: 20px; padding: 26px 32px; }
-.result { font-size: 17px; color: #222831; background: #eef1f5; border-radius: 10px; border: 1px solid #dae1e7; padding: 20px 16px 14px 16px; box-shadow: 0 2px 8px rgba(24,49,83,0.08);}
-.copy-btn { float: right; cursor: pointer; padding: 3px 8px; font-size: 15px; border-radius: 5px; background: #dae1e7; color: #222831; margin-left: 8px; border: none; }
-.copy-btn:hover { background: #b6c5d9; }
-.language-tag { font-size: 14px; background: #e3e6ea; color: #183153; border-radius: 5px; padding: 6px 12px; margin-left: 7px; }
-footer { font-size: 13px; color: #38618c; margin-top: 28px; text-align: center; }
-@media (max-width: 900px) {
-    .card { padding: 12px 8px; }
-    .result { padding: 10px 8px; font-size:15px; }
+.stButton>button:hover {
+    background: #222831;
+    color: #f7f9fa !important;
+}
+section[data-testid="stSidebar"] {
+    background-color: #e3e6ea !important;
+    color: #222831 !important;
+}
+.title {
+    font-size: 27px;
+    font-weight: 700;
+    color: #183153;
+    text-align: center;
+    margin-bottom: 4px;
+}
+.subtitle {
+    text-align: center;
+    color: #38618c;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+.result {
+    font-size: 16px;
+    color: #222831;
+    white-space: pre-wrap;
+    background: #eef1f5;
+    border-radius: 8px;
+    padding: 15px 15px;
+    margin-top: 8px;
+    border: 1.5px solid #dae1e7;
+}
+.footer {
+    text-align: center;
+    font-size: 13px;
+    color: #38618c;
+    margin-top: 20px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-### --- LOGO + TITLE ---
-st.markdown(f"""
-<div style='display:flex;align-items:center;margin-bottom:10px;'>
-    <img src='https://cdn-icons-png.flaticon.com/512/861/861070.png' style='width:50px;margin-right:18px;'/>
-    <div>
-        <div style='font-size:29px;font-weight:700;color:#183153;'>Polyglot — AI Language Translator</div>
-        <div style='color:#38618c;font-size:15.3px;'>Modern design • Navy accent • Accessible & efficient</div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-st.info("Enter text, select your languages, and get instant translations. Use Advanced Settings for confidence scores and speech output.")
-
-### --- LAYOUT ---
-with st.container():
-    lang_col, input_col, output_col = st.columns([2, 3, 3])
-    COUNTRY_CODE = {"English": "gb", "Hindi": "in", "French": "fr", "Spanish": "es", "German": "de", "Italian": "it", "Chinese": "cn", "Japanese": "jp", "Korean": "kr"}
-    LANG_ISO = {"English": "en", "Hindi": "hi", "French": "fr", "Spanish": "es", "German": "de", "Italian": "it", "Chinese": "zh", "Japanese": "ja", "Korean": "ko"}
-    def flag_img(code): return f"<img src='https://flagcdn.com/w40/{code.lower()}.png' style='width:24px;border-radius:3px;margin-right:7px;vertical-align:middle;'/>"
-
-    # --- LANGUAGE SELECTION ---
-    with lang_col:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        src_lang = st.selectbox("Source Language", ["Auto Detect"] + list(COUNTRY_CODE.keys()), index=1, format_func=lambda x: f"{x} {'🌐' if x=='Auto Detect' else ''}")
-        tgt_lang = st.selectbox("Target Language", list(COUNTRY_CODE.keys()), index=0)
-        swap = st.button("↔️ Swap Languages")
-        if swap:
-            src_lang, tgt_lang = tgt_lang, src_lang
-            st.success("Languages swapped!")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # --- INPUT FIELD ---
-    with input_col:
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        text = st.text_area("Enter text to translate:", height=135)
-        # Translate button large and centered
-        translate_btn = st.button("Translate 🌐", use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # --- ADVANCED SETTINGS ---
-    with st.expander("Advanced Settings"):
-        temperature = st.slider("Translation Temperature", 0.0, 1.0, 0.3, 0.05)
-        show_conf = st.checkbox("Show Confidence Score", value=True)
-        enable_tts = st.checkbox("Enable Text-to-Speech", value=False)
-
-    # --- TRANSLATION OUTPUT ---
-    with output_col:
-        if translate_btn:
-            if not text.strip():
-                st.warning("Please enter some text.")
-            else:
-                src_iso = "auto" if src_lang == "Auto Detect" else LANG_ISO.get(src_lang, "en")
-                tgt_iso = LANG_ISO.get(tgt_lang, "en")
-                st.markdown(
-                    f"**From:** {flag_img(COUNTRY_CODE.get(src_lang, 'gb'))}<span class='language-tag'>{src_lang}</span>"
-                    f" **To:** {flag_img(COUNTRY_CODE.get(tgt_lang, 'gb'))}<span class='language-tag'>{tgt_lang}</span>",
-                    unsafe_allow_html=True)
-                # Model loader
-                @st.cache_resource
-                def load_translator(src_iso, tgt_iso):
-                    if src_iso == "auto": src_iso = "en"
-                    if src_iso == tgt_iso: return (None, "identity")
-                    hel_model = f"Helsinki-NLP/opus-mt-{src_iso}-{tgt_iso}"
-                    try:
-                        pipe = pipeline("translation", model=hel_model)
-                        return (pipe, "helsinki")
-                    except Exception:
-                        try:
-                            pipe = pipeline("translation", model="facebook/m2m100_418M")
-                            return (pipe, "m2m")
-                        except Exception:
-                            return (None, None)
-                with st.spinner("Loading model..."):
-                    translator, model_type = load_translator(src_iso, tgt_iso)
-                if model_type == "identity":
-                    result = text
-                elif translator is None:
-                    result = ""
-                else:
-                    try:
-                        if model_type == "helsinki":
-                            out = translator(text, max_length=512)
-                            result = out[0]["translation_text"] if isinstance(out, list) else out["translation_text"]
-                        else:
-                            out = translator(text, max_length=512, src_lang=src_iso, tgt_lang=tgt_iso)
-                            result = out[0]["translation_text"] if isinstance(out, list) else out["translation_text"]
-                    except Exception: result = ""
-
-                # Output area with safe copy button (uses DOM, no triple-quote variable embedding)
-                st.markdown("<div class='card'>", unsafe_allow_html=True)
-                # Output section with an id for JavaScript to find:
-                st.markdown(
-                    f"""
-                    <div id='result-text' class='result' style='position:relative;'>{result}
-                    <button class='copy-btn' onclick="
-                        var txt = document.getElementById('result-text').innerText;
-                        navigator.clipboard.writeText(txt);
-                        alert('Copied to clipboard!');
-                    ">📋 Copy</button></div>
-                    """,
-                    unsafe_allow_html=True
-                )
-                # Confidence bar
-                if show_conf:
-                    conf = round(max(0.6, 1 - temperature * 0.4), 3)
-                    st.progress(conf)
-                    st.caption(f"Confidence: {conf*100:.1f}%")
-                st.download_button("Download Translation", result, "translation.txt")
-                # TTS output
-                if enable_tts and result:
-                    try:
-                        tts = gTTS(text=result, lang=tgt_iso if tgt_iso in ["en","hi","fr","es","de","it","pt"] else "en")
-                        bio = io.BytesIO()
-                        tts.write_to_fp(bio)
-                        bio.seek(0)
-                        st.audio(bio.read(), format="audio/mp3")
-                    except Exception: st.error("TTS failed.")
-                st.markdown("</div>", unsafe_allow_html=True)
-
-### --- FOOTER ---
+# -------------------------
+# Header
+# -------------------------
 st.markdown("""
-<footer>
-    Polyglot Translator — Streamlit UI Demo<br>
-    Crafted by Your Name (2025)
-</footer>
+<div class="title">🌐 Polyglot — AI Language Translator</div>
+<div class="subtitle">Modern theme • Navy accent • Accessible & clean UI</div>
+""", unsafe_allow_html=True)
+
+# -------------------------
+# Flag helper
+# -------------------------
+def flag_img(country_code: str) -> str:
+    return f"<img src='https://flagcdn.com/w40/{country_code.lower()}.png' style='width:30px;height:20px;border-radius:3px;margin-right:6px;' alt='flag'/>"
+
+# -------------------------
+# Translator loader (cached)
+# -------------------------
+@st.cache_resource
+def load_translator(src_iso: str, tgt_iso: str):
+    if src_iso == "auto":
+        src_iso = "en"
+    if src_iso == tgt_iso:
+        return (None, "identity")
+    hel_model = f"Helsinki-NLP/opus-mt-{src_iso}-{tgt_iso}"
+    try:
+        pipe = pipeline("translation", model=hel_model)
+        return (pipe, "helsinki")
+    except Exception:
+        try:
+            pipe = pipeline("translation", model="facebook/m2m100_418M")
+            return (pipe, "m2m")
+        except Exception:
+            raise
+
+# -------------------------
+# Main UI
+# -------------------------
+st.markdown(f"""
+**Source:** {flag_img(COUNTRY_CODE.get(src_lang, 'gb'))} {src_lang} &nbsp;&nbsp;&nbsp; 
+**Target:** {flag_img(COUNTRY_CODE.get(tgt_lang, 'in'))} {tgt_lang}
+""", unsafe_allow_html=True)
+
+text = st.text_area("Enter text to translate:", height=180)
+translate_btn = st.button("Translate")
+
+if translate_btn:
+    if not text.strip():
+        st.warning("Please enter some text.")
+    else:
+        src_iso = "auto" if src_lang == "Auto Detect" else LANG_ISO.get(src_lang, "en")
+        tgt_iso = LANG_ISO.get(tgt_lang, "en")
+        st.info(f"Translating {src_lang} → {tgt_lang} ...")
+        with st.spinner("Loading model..."):
+            try:
+                translator, model_type = load_translator(src_iso, tgt_iso)
+            except Exception as e:
+                st.error(f"Failed to load models: {e}")
+                translator, model_type = None, None
+        if model_type == "identity":
+            result = text
+        elif translator is None:
+            result = ""
+        else:
+            try:
+                if model_type == "helsinki":
+                    out = translator(text, max_length=512)
+                    result = out[0]["translation_text"] if isinstance(out, list) else out["translation_text"]
+                else:
+                    out = translator(text, max_length=512, src_lang=src_iso, tgt_lang=tgt_iso)
+                    result = out[0]["translation_text"] if isinstance(out, list) else out["translation_text"]
+            except Exception as e:
+                st.error(f"Translation failed: {e}")
+                result = ""
+
+        st.markdown(f"<div class='result'>{result}</div>", unsafe_allow_html=True)
+
+        if show_conf:
+            conf = round(max(0.6, 1 - temperature * 0.4), 3)
+            st.progress(conf)
+            st.caption(f"Confidence: {conf*100:.1f}%")
+
+        st.download_button("Download Translation", result, "translation.txt")
+
+        if enable_tts and result:
+            try:
+                tts = gTTS(text=result, lang=tgt_iso if tgt_iso in ["en","hi","fr","es","de","it","pt"] else "en")
+                bio = io.BytesIO()
+                tts.write_to_fp(bio)
+                bio.seek(0)
+                st.audio(bio.read(), format="audio/mp3")
+            except Exception:
+                st.error("TTS failed.")
+
+# -------------------------
+# Footer
+# -------------------------
+st.markdown("""
+<hr>
+<div class="footer">
+  <strong>Polyglot</strong> — Modern theme • Navy accent
+</div>
 """, unsafe_allow_html=True)
