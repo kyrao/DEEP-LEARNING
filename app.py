@@ -70,114 +70,120 @@ st.markdown("""
 <style>
 
 html, body, [class*="css"] {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif !important;
-    background-color: #F5F5F7 !important; /* Apple light grey */
-    color: #1C1C1E !important;
+    font-family: "Inter", sans-serif !important;
+    background: linear-gradient(135deg, #EEF1FF, #DDEBFF, #F2E9FF);
+    background-size: 300% 300%;
+    animation: auroraBG 18s ease infinite;
+    color: #1A1A1A !important;
 }
 
-/* Main container */
+/* Smooth animated background */
+@keyframes auroraBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Main app container */
 section[data-testid="stAppViewContainer"] {
-    background-color: #F5F5F7 !important;
     padding: 20px;
 }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background: #FFFFFF !important;
-    border-right: 1px solid #E5E5EA !important;
+    background: rgba(255,255,255,0.55) !important;
+    backdrop-filter: blur(14px);
+    border-right: 1px solid rgba(255,255,255,0.35);
 }
 
-/* Apple Glass Card */
+/* Glass card with aurora glow */
 .glass {
-    background: rgba(255,255,255,0.72);
-    padding: 24px;
+    background: rgba(255,255,255,0.65);
     border-radius: 18px;
+    padding: 26px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.55);
     box-shadow: 
-        0 4px 16px rgba(0,0,0,0.08),
-        0 1px 3px rgba(0,0,0,0.06);
-    backdrop-filter: blur(22px);
-    border: 1px solid rgba(255,255,255,0.45);
+        0 8px 32px rgba(31,38,135,0.20),
+        0 2px 8px rgba(0,0,0,0.08);
 }
 
-/* Title */
+/* Title with aurora gradient text */
 .title {
-    font-size: 32px;
-    font-weight: 700;
+    font-size: 34px;
+    font-weight: 800;
     text-align: center;
-    letter-spacing: -0.5px;
-    background: linear-gradient(90deg, #111, #555);
+    background: linear-gradient(90deg, #7B2FF7, #4C8DFF, #6A5BFF);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
 }
 
 /* Subtitle */
 .subtitle {
     text-align: center;
-    font-size: 14px;
-    color: #6E6E73;
-    margin-top: -4px;
-    margin-bottom: 10px;
+    font-size: 15px;
+    color: #5D5D71;
+    margin-top: -6px;
 }
 
-/* Apple Style Button */
+/* Aurora Gradient Button */
 .stButton > button {
-    border-radius: 12px;
-    padding: 0.6em 1.4em;
+    border-radius: 14px;
+    padding: 0.7em 1.4em;
     font-weight: 600;
-    border: 1px solid #D2D2D7 !important;
-    background: #FFFFFF;
-    color: #000;
-    box-shadow: 
-        0 1px 3px rgba(0,0,0,0.07),
-        0 1px 1px rgba(0,0,0,0.04);
-    transition: all 0.2s ease-in-out;
+    color: white;
+    border: none;
+    background: linear-gradient(135deg, #A066FF, #4C8DFF);
+    box-shadow: 0 6px 20px rgba(76,141,255,0.35);
+    transition: 0.25s ease-in-out;
 }
 
 .stButton > button:hover {
-    background: #F2F2F7;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(76,141,255,0.45);
 }
 
-/* Textarea (macOS style) */
+/* Textarea (clean card feel) */
 textarea {
-    background: #FFFFFF !important;
-    border-radius: 12px !important;
-    border: 1px solid #D2D2D7 !important;
-    padding: 12px !important;
-    font-size: 15px !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(255,255,255,0.55) !important;
+    background: rgba(255,255,255,0.75) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+    padding: 14px !important;
 }
 
-/* Result output */
+/* Output result container */
 .result {
-    background: #FFFFFF;
-    padding: 18px;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(12px);
     border-radius: 14px;
-    border: 1px solid #E5E5EA;
-    box-shadow: 
-        0 4px 14px rgba(0,0,0,0.04),
-        0 1px 2px rgba(0,0,0,0.06);
-    font-size: 16px;
-    color: #1C1C1E;
+    padding: 18px;
+    font-size: 17px;
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
 }
 
-/* Flags (non-animated, clean) */
+/* Flags (keep minimal, clean) */
 .flag {
-    width: 38px;
-    height: 26px;
-    border-radius: 4px;
-    border: 1px solid #D2D2D7;
+    width: 40px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 /* Footer */
 .footer {
     text-align:center;
-    margin-top:25px;
-    font-size:13px;
-    color:#6E6E73;
+    margin-top:20px;
+    font-size:14px;
+    color:#5D5D71;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # -------------------------
