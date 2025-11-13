@@ -67,93 +67,114 @@ if st.sidebar.button("↔️ Swap Languages"):
 # -------------------------
 st.markdown("""
 <style>
+
 html, body, [class*="css"] {
-    background-color: #ffffff !important;
-    color: #1a1a1a !important;
+    background: linear-gradient(145deg, #e8f9fa 0%, #dfe9ee 35%, #eef2f7 100%) !important;
+    background-attachment: fixed;
+    color: #1c2b33 !important;
     font-family: 'Inter', sans-serif;
 }
-section[data-testid="stAppViewContainer"],
-section[data-testid="stVerticalBlock"],
-div.block-container,
-[data-testid="stSidebar"] {
-    background-color: #ffffff !important;
-    color: #1a1a1a !important;
-}
 
-/* Buttons */
-.stButton>button {
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #ff66c4, #ff9f45);
-    color: white !important;
-    font-weight: 600;
-    padding: 0.6em 1em;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 12px rgba(255,102,196,0.25);
-}
-.stButton>button:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 24px rgba(255,159,69,0.3);
-}
-
-/* Glass card */
+/* Main Glass Card */
 .glass {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    padding: 18px;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    background: rgba(255, 255, 255, 0.58);
+    border-radius: 16px;
+    padding: 22px;
+    border: 1px solid rgba(200, 220, 230, 0.6);
+    backdrop-filter: blur(14px);
+    box-shadow:
+        0 8px 25px rgba(12, 60, 70, 0.08),
+        0 4px 10px rgba(0, 0, 0, 0.04);
 }
 
-/* Titles */
+/* Title Gradient - Teal + Navy */
 .title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #ff66c4;
+    font-size: 30px;
+    font-weight: 800;
     text-align: center;
-    margin-bottom: 4px;
+    background: linear-gradient(90deg, #006a7a, #0099a8, #005f7a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.3px;
 }
+
+/* Subtitle */
 .subtitle {
     text-align:center;
-    color:#ff9f45;
-    margin-top:0;
-    margin-bottom:8px;
+    color:#4e6068;
+    font-size:14px;
+    margin-top:-6px;
 }
 
-/* Result */
+/* Stylish teal buttons */
+.stButton>button {
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    padding: 10px 22px;
+    color: white;
+    background: linear-gradient(135deg, #008c9e, #4ebac4);
+    box-shadow: 0px 8px 20px rgba(0, 140, 158, 0.22);
+    transition: 0.22s ease-in-out;
+}
+
+.stButton>button:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0px 10px 28px rgba(0, 140, 158, 0.32),
+        0px 5px 14px rgba(80, 190, 204, 0.18);
+}
+
+/* Textarea */
+textarea {
+    border-radius: 14px !important;
+    border: 1px solid rgba(170, 190, 200, 0.6) !important;
+    background: rgba(255,255,255,0.75) !important;
+    padding: 14px !important;
+    color: #1c2b33 !important;
+    box-shadow: inset 0px 0px 8px rgba(0,0,0,0.04);
+}
+
+/* Output Box */
 .result {
-    font-size:16px;
-    color:#1a1a1a;
+    background: rgba(255,255,255,0.75);
+    border-radius: 16px;
+    padding: 18px;
+    border: 1px solid rgba(200,220,225,0.7);
+    font-size: 16px;
+    color:#1c2b33;
+    box-shadow: 
+        0 6px 20px rgba(17,50,60,0.08);
     white-space: pre-wrap;
 }
 
-/* Flag image + wave animation */
+/* Flags – clean professional */
 .flag {
-    width: 36px;
-    height: 24px;
-    margin-right: 8px;
-    border-radius: 3px;
-    display:inline-block;
-    animation: wave 1.6s ease-in-out infinite;
-    transform-origin: 50% 60%;
+    width: 38px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid rgba(160,190,200,0.6);
+    box-shadow: 0px 3px 8px rgba(0,100,120,0.12);
 }
-@keyframes wave {
-  0% { transform: rotate(0deg) translateY(0px); }
-  25% { transform: rotate(4deg) translateY(-1px); }
-  50% { transform: rotate(-4deg) translateY(1px); }
-  75% { transform: rotate(4deg) translateY(-1px); }
-  100% { transform: rotate(0deg) translateY(0px); }
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: rgba(255,255,255,0.52) !important;
+    border-right: 1px solid rgba(200,220,230,0.6);
+    backdrop-filter: blur(12px);
 }
 
 /* Footer */
 .footer {
     text-align:center;
-    font-size:13px;
-    color:#ff66c4;
-    margin-top:18px;
+    font-size:14px;
+    margin-top:20px;
+    color:#006a7a;
 }
+
 </style>
 """, unsafe_allow_html=True)
+
 
 # -------------------------
 # Header
