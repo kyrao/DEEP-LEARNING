@@ -1,0 +1,9 @@
+streamlit
+transformers
+pandas
+torch
+speechrecognition
+pydub
+gTTS
+streamlit-audiorecorder
+sentencepiece
