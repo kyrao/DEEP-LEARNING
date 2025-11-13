@@ -70,30 +70,33 @@ st.markdown("""
 <style>
 
 html, body, [class*="css"] {
-    font-family: "Inter", sans-serif !important;
-    background-color: #F7F7FB !important;
-    color: #1A1A1A !important;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif !important;
+    background-color: #F5F5F7 !important; /* Apple light grey */
+    color: #1C1C1E !important;
 }
 
 /* Main container */
 section[data-testid="stAppViewContainer"] {
-    background-color: #F7F7FB !important;
-    padding-top: 20px;
+    background-color: #F5F5F7 !important;
+    padding: 20px;
 }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
     background: #FFFFFF !important;
-    border-right: 1px solid #E7E7E7;
+    border-right: 1px solid #E5E5EA !important;
 }
 
-/* Glass Cards */
+/* Apple Glass Card */
 .glass {
-    background: rgba(255,255,255,0.85);
-    padding: 22px;
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.07);
-    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.72);
+    padding: 24px;
+    border-radius: 18px;
+    box-shadow: 
+        0 4px 16px rgba(0,0,0,0.08),
+        0 1px 3px rgba(0,0,0,0.06);
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.45);
 }
 
 /* Title */
@@ -101,64 +104,76 @@ section[data-testid="stAppViewContainer"] {
     font-size: 32px;
     font-weight: 700;
     text-align: center;
-    background: linear-gradient(90deg, #6C63FF, #5CE1E6);
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #111, #555);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 6px;
 }
 
 /* Subtitle */
 .subtitle {
-    color: #7A7A8F;
     text-align: center;
-    margin-bottom: 12px;
+    font-size: 14px;
+    color: #6E6E73;
+    margin-top: -4px;
+    margin-bottom: 10px;
 }
 
-/* Buttons */
+/* Apple Style Button */
 .stButton > button {
     border-radius: 12px;
-    padding: 0.7em 1.3em;
+    padding: 0.6em 1.4em;
     font-weight: 600;
-    background: linear-gradient(90deg,#6C63FF,#5CE1E6);
-    color: white;
-    border: none;
-    box-shadow: 0 4px 12px rgba(108,99,255,0.25);
-    transition: 0.2s ease-in-out;
-}
-.stButton > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(108,99,255,0.35);
-}
-
-/* Text Area */
-textarea {
-    border-radius: 12px !important;
-    border: 1px solid #D8D8E3 !important;
-}
-
-/* Result text */
-.result {
-    padding: 16px;
-    font-size: 16px;
+    border: 1px solid #D2D2D7 !important;
     background: #FFFFFF;
-    border-radius: 12px;
-    border: 1px solid #E7E7F3;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    color: #000;
+    box-shadow: 
+        0 1px 3px rgba(0,0,0,0.07),
+        0 1px 1px rgba(0,0,0,0.04);
+    transition: all 0.2s ease-in-out;
 }
 
-/* Flags */
+.stButton > button:hover {
+    background: #F2F2F7;
+    transform: translateY(-1px);
+}
+
+/* Textarea (macOS style) */
+textarea {
+    background: #FFFFFF !important;
+    border-radius: 12px !important;
+    border: 1px solid #D2D2D7 !important;
+    padding: 12px !important;
+    font-size: 15px !important;
+}
+
+/* Result output */
+.result {
+    background: #FFFFFF;
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid #E5E5EA;
+    box-shadow: 
+        0 4px 14px rgba(0,0,0,0.04),
+        0 1px 2px rgba(0,0,0,0.06);
+    font-size: 16px;
+    color: #1C1C1E;
+}
+
+/* Flags (non-animated, clean) */
 .flag {
-    width: 40px;
-    height: 28px;
+    width: 38px;
+    height: 26px;
     border-radius: 4px;
+    border: 1px solid #D2D2D7;
 }
 
 /* Footer */
 .footer {
     text-align:center;
-    margin-top:20px;
-    font-size:14px;
-    color:#6C63FF;
+    margin-top:25px;
+    font-size:13px;
+    color:#6E6E73;
 }
 
 </style>
