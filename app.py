@@ -221,6 +221,6 @@ st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("""
 <div class='footer'>
     Polyglot Translator — Streamlit Demo Project<br>
-    Crafted by Your Name (2025)
+    Crafted by Kartikay Yadav and Jheelam Hossain (2025)
 </div>
 """, unsafe_allow_html=True)
