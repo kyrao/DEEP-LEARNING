@@ -68,93 +68,102 @@ if st.sidebar.button("↔️ Swap Languages"):
 # -------------------------
 st.markdown("""
 <style>
+
 html, body, [class*="css"] {
-    background-color: #ffffff !important;
-    color: #1a1a1a !important;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif !important;
+    background-color: #F7F7FB !important;
+    color: #1A1A1A !important;
 }
-section[data-testid="stAppViewContainer"],
-section[data-testid="stVerticalBlock"],
-div.block-container,
+
+/* Main container */
+section[data-testid="stAppViewContainer"] {
+    background-color: #F7F7FB !important;
+    padding-top: 20px;
+}
+
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background-color: #ffffff !important;
-    color: #1a1a1a !important;
+    background: #FFFFFF !important;
+    border-right: 1px solid #E7E7E7;
+}
+
+/* Glass Cards */
+.glass {
+    background: rgba(255,255,255,0.85);
+    padding: 22px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
+/* Title */
+.title {
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    background: linear-gradient(90deg, #6C63FF, #5CE1E6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+}
+
+/* Subtitle */
+.subtitle {
+    color: #7A7A8F;
+    text-align: center;
+    margin-bottom: 12px;
 }
 
 /* Buttons */
-.stButton>button {
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #ff66c4, #ff9f45);
-    color: white !important;
-    font-weight: 600;
-    padding: 0.6em 1em;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 12px rgba(255,102,196,0.25);
-}
-.stButton>button:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 24px rgba(255,159,69,0.3);
-}
-
-/* Glass card */
-.glass {
-    background: rgba(255, 255, 255, 0.8);
+.stButton > button {
     border-radius: 12px;
-    padding: 18px;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    padding: 0.7em 1.3em;
+    font-weight: 600;
+    background: linear-gradient(90deg,#6C63FF,#5CE1E6);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(108,99,255,0.25);
+    transition: 0.2s ease-in-out;
+}
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108,99,255,0.35);
 }
 
-/* Titles */
-.title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #ff66c4;
-    text-align: center;
-    margin-bottom: 4px;
-}
-.subtitle {
-    text-align:center;
-    color:#ff9f45;
-    margin-top:0;
-    margin-bottom:8px;
+/* Text Area */
+textarea {
+    border-radius: 12px !important;
+    border: 1px solid #D8D8E3 !important;
 }
 
-/* Result */
+/* Result text */
 .result {
-    font-size:16px;
-    color:#1a1a1a;
-    white-space: pre-wrap;
+    padding: 16px;
+    font-size: 16px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E7E7F3;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
 }
 
-/* Flag image + wave animation */
+/* Flags */
 .flag {
-    width: 36px;
-    height: 24px;
-    margin-right: 8px;
-    border-radius: 3px;
-    display:inline-block;
-    animation: wave 1.6s ease-in-out infinite;
-    transform-origin: 50% 60%;
-}
-@keyframes wave {
-  0% { transform: rotate(0deg) translateY(0px); }
-  25% { transform: rotate(4deg) translateY(-1px); }
-  50% { transform: rotate(-4deg) translateY(1px); }
-  75% { transform: rotate(4deg) translateY(-1px); }
-  100% { transform: rotate(0deg) translateY(0px); }
+    width: 40px;
+    height: 28px;
+    border-radius: 4px;
 }
 
 /* Footer */
 .footer {
     text-align:center;
-    font-size:13px;
-    color:#ff66c4;
-    margin-top:18px;
+    margin-top:20px;
+    font-size:14px;
+    color:#6C63FF;
 }
+
 </style>
 """, unsafe_allow_html=True)
+
 
 # -------------------------
 # Header
