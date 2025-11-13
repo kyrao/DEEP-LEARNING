@@ -193,7 +193,7 @@ tgt_flag = COUNTRY_CODE.get(tgt_lang, "gb")
 
 header_html = header_html.format(src_flag=src_flag, tgt_flag=tgt_flag, src_lang=src_lang, tgt_lang=tgt_lang)
 
-st.markdown(header_html, unsafe_allow_html=True)
+# st.markdown(header_html, unsafe_allow_html=True)
 
 
 
