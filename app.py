@@ -164,23 +164,30 @@ textarea {
 # -------------------------
 # Header (subtitle removed)
 # -------------------------
-st.markdown(f"""
+header_html = f"""
 <div class="glass" style="margin-bottom:16px;">
-  <div class="title">🌐 Polyglot — AI Language Translator</div>
+    <div class="title">🌐 Polyglot — AI Language Translator</div>
 
-  <div style="margin-top:12px; font-size:16px; display:flex; justify-content:center; gap:40px; align-items:center;">
-        <div>
-            <strong>Source:</strong> 
-            <img src='https://flagcdn.com/w40/{COUNTRY_CODE.get(src_lang,"gb")}.png' class='flag'/> {src_lang}
+    <div style="margin-top:15px; display:flex; justify-content:center; gap:60px; align-items:center;">
+
+        <div style="display:flex; align-items:center; gap:10px;">
+            <strong>Source:</strong>
+            <img src="https://flagcdn.com/w40/{COUNTRY_CODE.get(src_lang, 'gb')}.png" class="flag">
+            <span>{src_lang}</span>
         </div>
 
-        <div>
-            <strong>Target:</strong> 
-            <img src='https://flagcdn.com/w40/{COUNTRY_CODE.get(tgt_lang,"gb")}.png' class='flag'/> {tgt_lang}
+        <div style="display:flex; align-items:center; gap:10px;">
+            <strong>Target:</strong>
+            <img src="https://flagcdn.com/w40/{COUNTRY_CODE.get(tgt_lang, 'gb')}.png" class="flag">
+            <span>{tgt_lang}</span>
         </div>
-  </div>
+
+    </div>
 </div>
-""", unsafe_allow_html=True)
+"""
+
+st.markdown(header_html, unsafe_allow_html=True)
+
 
 
 # -------------------------
