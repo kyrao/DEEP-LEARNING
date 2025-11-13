@@ -57,7 +57,7 @@ if st.sidebar.button("↔️ Swap Languages"):
     st.sidebar.success("Languages swapped!")
 
 # -------------------------
-# NEW TEAL PREMIUM THEME CSS
+# TEAL PREMIUM THEME CSS
 # -------------------------
 st.markdown("""
 <style>
@@ -83,16 +83,13 @@ html, body, [class*="css"] {
 
 /* Title */
 .title {
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 800;
     text-align: center;
     background: linear-gradient(90deg, #006a7a, #0099a8, #005f7a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
-
-/* Remove subtitle */
-.subtitle { display: none; }
 
 /* Buttons */
 .stButton>button {
@@ -162,14 +159,17 @@ textarea {
 
 
 # -------------------------
-# Header (subtitle removed)
+# HEADER (Perfect + Working)
 # -------------------------
-header_html = """
-<div class="glass" style="margin-bottom:16px; padding:25px; text-align:center;">
+src_flag = COUNTRY_CODE.get(src_lang, "gb")
+tgt_flag = COUNTRY_CODE.get(tgt_lang, "gb")
+
+header_html = f"""
+<div class="glass" style="margin-bottom:20px; padding:28px;">
 
     <div class="title">🌐 Polyglot — AI Language Translator</div>
 
-    <div style="margin-top:18px; display:flex; justify-content:center; gap:80px; align-items:center; font-size:18px;">
+    <div style="margin-top:20px; display:flex; justify-content:center; gap:80px; align-items:center; font-size:18px;">
 
         <div style="display:flex; align-items:center; gap:10px;">
             <strong>Source:</strong>
@@ -188,18 +188,10 @@ header_html = """
 </div>
 """
 
-src_flag = COUNTRY_CODE.get(src_lang, "gb")
-tgt_flag = COUNTRY_CODE.get(tgt_lang, "gb")
-
-header_html = header_html.format(src_flag=src_flag, tgt_flag=tgt_flag, src_lang=src_lang, tgt_lang=tgt_lang)
-
-# st.markdown(header_html, unsafe_allow_html=True)
-
-
-
+st.markdown(header_html, unsafe_allow_html=True)
 
 # -------------------------
-# Particle trail (unchanged)
+# Particle animation
 # -------------------------
 trail_js = """
 <script>
@@ -218,8 +210,17 @@ window.addEventListener('resize',()=>{s.width=window.innerWidth; s.height=window
 """
 components.html(trail_js, height=1, scrolling=False)
 
+
 # -------------------------
-# Translator loader (unchanged)
+# MAIN GLASS CARD
+# -------------------------
+st.markdown('<div class="glass" style="padding:20px;">', unsafe_allow_html=True)
+
+text = st.text_area("Enter text to translate:", height=180)
+translate_btn = st.button("🚀 Translate")
+
+# -------------------------
+# TRANSLATOR LOGIC (unchanged)
 # -------------------------
 @st.cache_resource
 def load_translator(src_iso: str, tgt_iso: str):
@@ -231,20 +232,12 @@ def load_translator(src_iso: str, tgt_iso: str):
     try:
         pipe = pipeline("translation", model=hel_model)
         return (pipe, "helsinki")
-    except Exception:
+    except:
         try:
             pipe = pipeline("translation", model="facebook/m2m100_418M")
             return (pipe, "m2m")
         except:
             raise
-
-# -------------------------
-# MAIN UI
-# -------------------------
-st.markdown('<div class="glass">', unsafe_allow_html=True)
-
-text = st.text_area("Enter text to translate:", height=180)
-translate_btn = st.button("🚀 Translate")
 
 if translate_btn:
     if not text.strip():
@@ -267,7 +260,10 @@ if translate_btn:
         elif translator is None:
             result = ""
         else:
-            out = translator(text, max_length=512, **({"src_lang": src_iso, "tgt_lang": tgt_iso} if model_type=="m2m" else {}))
+            out = translator(
+                text, max_length=512,
+                **({"src_lang": src_iso, "tgt_lang": tgt_iso} if model_type=="m2m" else {})
+            )
             result = out[0].get("translation_text", str(out))
 
         st.markdown(f"<div class='result'>{result}</div>", unsafe_allow_html=True)
