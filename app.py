@@ -1,12 +1,16 @@
 # app.py
 """
-Polyglot — AI Language Translator (Teal Premium Theme)
+Polyglot — AI Language Translator (White Theme) — Fixed m2m100 fallback
+- Fixes ValueError from facebook/m2m100_418M by passing src_lang/tgt_lang
+- Uses ISO language codes for model calls and country codes for flag images
+Run: streamlit run app.py
 """
 
 import streamlit as st
 from transformers import pipeline
 from gtts import gTTS
 import io
+import time
 import streamlit.components.v1 as components
 
 # -------------------------
@@ -17,6 +21,7 @@ st.set_page_config(page_title="Polyglot — AI Translator", page_icon="🌐", la
 # -------------------------
 # Language maps
 # -------------------------
+# country codes for flagcdn (png)
 COUNTRY_CODE = {
     "English": "gb",
     "Hindi": "in",
@@ -29,6 +34,8 @@ COUNTRY_CODE = {
     "Korean": "kr",
 }
 
+# ISO language codes for the translation models (Helsinki/M2M)
+# make sure these are valid model language tags (Helsinki uses two-letter codes like en,fr,hi; M2M accepts many of these)
 LANG_ISO = {
     "English": "en",
     "Hindi": "hi",
@@ -57,141 +64,117 @@ if st.sidebar.button("↔️ Swap Languages"):
     st.sidebar.success("Languages swapped!")
 
 # -------------------------
-# TEAL PREMIUM THEME CSS
+# CSS (white background + pink/orange accents + animated flags)
 # -------------------------
 st.markdown("""
 <style>
-
 html, body, [class*="css"] {
-    background: linear-gradient(145deg, #e8f9fa 0%, #dfe9ee 40%, #eef2f7 100%) !important;
-    color: #1c2b33 !important;
+    background-color: #ffffff !important;
+    color: #1a1a1a !important;
     font-family: 'Inter', sans-serif;
-    background-attachment: fixed;
 }
-
-/* Glass card */
-.glass {
-    background: rgba(255, 255, 255, 0.55);
-    border-radius: 18px;
-    padding: 22px;
-    border: 1px solid rgba(190, 210, 220, 0.6);
-    box-shadow:
-        0px 8px 20px rgba(12, 60, 70, 0.08),
-        0px 4px 10px rgba(0, 0, 0, 0.04);
-    backdrop-filter: blur(14px);
-}
-
-/* Title */
-.title {
-    font-size: 32px;
-    font-weight: 800;
-    text-align: center;
-    background: linear-gradient(90deg, #006a7a, #0099a8, #005f7a);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+section[data-testid="stAppViewContainer"],
+section[data-testid="stVerticalBlock"],
+div.block-container,
+[data-testid="stSidebar"] {
+    background-color: #ffffff !important;
+    color: #1a1a1a !important;
 }
 
 /* Buttons */
 .stButton>button {
     border: none;
-    border-radius: 12px;
-    font-weight: 700;
-    padding: 10px 22px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #ff66c4, #ff9f45);
     color: white !important;
-    background: linear-gradient(135deg, #008c9e, #4ac2d0);
-    box-shadow: 0px 6px 16px rgba(0, 140, 158, 0.25);
-    transition: 0.22s ease-in-out;
+    font-weight: 600;
+    padding: 0.6em 1em;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 12px rgba(255,102,196,0.25);
 }
-
 .stButton>button:hover {
-    transform: translateY(-2px);
-    box-shadow:
-        0px 10px 22px rgba(0, 140, 158, 0.35),
-        0px 6px 14px rgba(80, 190, 204, 0.12);
+    transform: scale(1.03);
+    box-shadow: 0 0 24px rgba(255,159,69,0.3);
 }
 
-/* Textarea */
-textarea {
-    border-radius: 14px !important;
-    background: rgba(255,255,255,0.75) !important;
-    border: 1px solid rgba(170,190,200,0.6) !important;
-    padding: 14px !important;
-    color: #1c2b33 !important;
-    box-shadow: inset 0px 0px 8px rgba(0,0,0,0.04);
+/* Glass card */
+.glass {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 18px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+/* Titles */
+.title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ff66c4;
+    text-align: center;
+    margin-bottom: 4px;
+}
+.subtitle {
+    text-align:center;
+    color:#ff9f45;
+    margin-top:0;
+    margin-bottom:8px;
 }
 
 /* Result */
 .result {
-    background: rgba(255,255,255,0.72);
-    border-radius: 16px;
-    border: 1px solid rgba(200,220,225,0.6);
-    padding: 18px;
-    font-size: 16px;
-    box-shadow: 0px 6px 20px rgba(17,50,60,0.08);
+    font-size:16px;
+    color:#1a1a1a;
+    white-space: pre-wrap;
 }
 
-/* Flag styling */
+/* Flag image + wave animation */
 .flag {
-    width: 40px;
-    height: 28px;
-    border-radius: 6px;
-    border: 1px solid rgba(160,190,200,0.6);
-    box-shadow: 0px 4px 10px rgba(0,100,120,0.12);
+    width: 36px;
+    height: 24px;
+    margin-right: 8px;
+    border-radius: 3px;
+    display:inline-block;
+    animation: wave 1.6s ease-in-out infinite;
+    transform-origin: 50% 60%;
 }
-
-/* Sidebar */
-[data-testid="stSidebar"] {
-    background: rgba(255,255,255,0.48) !important;
-    border-right: 1px solid rgba(200,220,230,0.6);
-    backdrop-filter: blur(12px);
+@keyframes wave {
+  0% { transform: rotate(0deg) translateY(0px); }
+  25% { transform: rotate(4deg) translateY(-1px); }
+  50% { transform: rotate(-4deg) translateY(1px); }
+  75% { transform: rotate(4deg) translateY(-1px); }
+  100% { transform: rotate(0deg) translateY(0px); }
 }
 
 /* Footer */
 .footer {
     text-align:center;
-    font-size:14px;
-    color:#006a7a;
-    margin-top:20px;
+    font-size:13px;
+    color:#ff66c4;
+    margin-top:18px;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
-
 # -------------------------
-# HEADER (Perfect + Working)
+# Header
 # -------------------------
-src_flag = COUNTRY_CODE.get(src_lang, "gb")
-tgt_flag = COUNTRY_CODE.get(tgt_lang, "gb")
-
-header_html = f"""
-<div class="glass" style="margin-bottom:20px; padding:28px;">
-
-    <div class="title">🌐 Polyglot — AI Language Translator</div>
-
-    <div style="margin-top:20px; display:flex; justify-content:center; gap:80px; align-items:center; font-size:18px;">
-
-        <div style="display:flex; align-items:center; gap:10px;">
-            <strong>Source:</strong>
-            <img src="https://flagcdn.com/w40/{src_flag}.png" class="flag">
-            <span>{src_lang}</span>
-        </div>
-
-        <div style="display:flex; align-items:center; gap:10px;">
-            <strong>Target:</strong>
-            <img src="https://flagcdn.com/w40/{tgt_flag}.png" class="flag">
-            <span>{tgt_lang}</span>
-        </div>
-
-    </div>
-
+st.markdown("""
+<div class="glass" style="margin-bottom:16px;">
+  <div class="title">🌐 Polyglot — AI Language Translator</div>
+  <div class="subtitle">White theme • Pink/Orange accents • Animated flags</div>
 </div>
-"""
-
-st.markdown(header_html, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # -------------------------
-# Particle animation
+# Flag helper
+# -------------------------
+def flag_img(country_code: str) -> str:
+    # flagcdn expects lowercase country codes
+    return f"<img src='https://flagcdn.com/w40/{country_code.lower()}.png' class='flag' alt='flag'/>"
+
+# -------------------------
+# Lightweight particle trail
 # -------------------------
 trail_js = """
 <script>
@@ -203,27 +186,22 @@ document.body.appendChild(s);
 const ctx=s.getContext('2d'); let ps=[];
 function r(a,b){return Math.random()*(b-a)+a;}
 function sp(x,y){ for(let i=0;i<2;i++) ps.push({x,y,vx:r(-0.6,0.6),vy:r(-0.6,0.6),life:r(20,50),r:r(1,2)}); }
-function dr(){ ctx.clearRect(0,0,s.width,s.height); for(let i=ps.length-1;i>=0;i--){ let p=ps[i]; p.x+=p.vx; p.y+=p.vy; p.life-=1; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,2*Math.PI); ctx.fillStyle='rgba(0,167,187,0.7)'; ctx.globalAlpha=Math.max(0,p.life/50); ctx.fill(); if(p.life<=0) ps.splice(i,1);} requestAnimationFrame(dr); }
+function dr(){ ctx.clearRect(0,0,s.width,s.height); for(let i=ps.length-1;i>=0;i--){ let p=ps[i]; p.x+=p.vx; p.y+=p.vy; p.life-=1; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,2*Math.PI); ctx.fillStyle='rgba(255,159,69,0.9)'; ctx.globalAlpha=Math.max(0,p.life/50); ctx.fill(); if(p.life<=0) ps.splice(i,1);} requestAnimationFrame(dr); }
 dr(); window.addEventListener('mousemove',e=>sp(e.clientX,e.clientY));
 window.addEventListener('resize',()=>{s.width=window.innerWidth; s.height=window.innerHeight;});
 </script>
 """
 components.html(trail_js, height=1, scrolling=False)
 
-
 # -------------------------
-# MAIN GLASS CARD
-# -------------------------
-st.markdown('<div class="glass" style="padding:20px;">', unsafe_allow_html=True)
-
-text = st.text_area("Enter text to translate:", height=180)
-translate_btn = st.button("🚀 Translate")
-
-# -------------------------
-# TRANSLATOR LOGIC (unchanged)
+# Translator loader (cached)
 # -------------------------
 @st.cache_resource
 def load_translator(src_iso: str, tgt_iso: str):
+    """
+    Attempt to load a pair-specific Helsinki model; if unavailable, load multilingual m2m100.
+    If src_iso == tgt_iso, returns (None, 'identity') so caller can simply echo input.
+    """
     if src_iso == "auto":
         src_iso = "en"
     if src_iso == tgt_iso:
@@ -232,12 +210,25 @@ def load_translator(src_iso: str, tgt_iso: str):
     try:
         pipe = pipeline("translation", model=hel_model)
         return (pipe, "helsinki")
-    except:
+    except Exception:
         try:
             pipe = pipeline("translation", model="facebook/m2m100_418M")
             return (pipe, "m2m")
-        except:
+        except Exception:
             raise
+
+# -------------------------
+# MAIN UI
+# -------------------------
+st.markdown('<div class="glass">', unsafe_allow_html=True)
+st.markdown(
+    f"**Source:** {flag_img(COUNTRY_CODE.get(src_lang, 'gb'))} {src_lang} &nbsp;&nbsp;&nbsp; "
+    f"**Target:** {flag_img(COUNTRY_CODE.get(tgt_lang, 'in'))} {tgt_lang}",
+    unsafe_allow_html=True,
+)
+
+text = st.text_area("Enter text to translate:", height=180)
+translate_btn = st.button("🚀 Translate")
 
 if translate_btn:
     if not text.strip():
@@ -247,12 +238,11 @@ if translate_btn:
         tgt_iso = LANG_ISO.get(tgt_lang, "en")
 
         st.info(f"Translating {src_lang} → {tgt_lang} ...")
-
         with st.spinner("Loading model..."):
             try:
                 translator, model_type = load_translator(src_iso, tgt_iso)
-            except:
-                st.error("Model loading failed.")
+            except Exception as e:
+                st.error(f"Failed to load models: {e}")
                 translator, model_type = None, None
 
         if model_type == "identity":
@@ -260,39 +250,54 @@ if translate_btn:
         elif translator is None:
             result = ""
         else:
-            out = translator(
-                text, max_length=512,
-                **({"src_lang": src_iso, "tgt_lang": tgt_iso} if model_type=="m2m" else {})
-            )
-            result = out[0].get("translation_text", str(out))
+            try:
+                if model_type == "helsinki":
+                    out = translator(text, max_length=512)
+                    if isinstance(out, list):
+                        result = out[0].get("translation_text", str(out[0]))
+                    elif isinstance(out, dict):
+                        result = out.get("translation_text", str(out))
+                    else:
+                        result = str(out)
+                else:
+                    out = translator(text, max_length=512, src_lang=src_iso, tgt_lang=tgt_iso)
+                    if isinstance(out, list):
+                        result = out[0].get("translation_text", str(out[0]))
+                    elif isinstance(out, dict):
+                        result = out.get("translation_text", str(out))
+                    else:
+                        result = str(out)
+            except Exception as e:
+                st.error(f"Translation failed: {e}")
+                result = ""
 
         st.markdown(f"<div class='result'>{result}</div>", unsafe_allow_html=True)
 
         if show_conf:
-            conf = round(max(0.55, 1 - temperature * 0.4), 3)
+            conf = round(max(0.6, 1 - temperature * 0.4), 3)
             st.progress(conf)
             st.caption(f"Confidence: {conf*100:.1f}%")
 
         st.download_button("⬇️ Download Translation", result, "translation.txt")
 
-        if enable_tts:
+        if enable_tts and result:
             try:
-                tts = gTTS(text=result, lang=tgt_iso)
+                tts = gTTS(text=result, lang=tgt_iso if tgt_iso in ["en","hi","fr","es","de","it","pt"] else "en")
                 bio = io.BytesIO()
                 tts.write_to_fp(bio)
                 bio.seek(0)
-                st.audio(bio, format="audio/mp3")
-            except:
+                st.audio(bio.read(), format="audio/mp3")
+            except Exception:
                 st.error("TTS failed.")
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-
 # -------------------------
-# FOOTER
+# Footer
 # -------------------------
 st.markdown("""
+<hr>
 <div class="footer">
-  Polyglot — Teal Premium UI
+  <strong>Polyglot</strong> — White theme • Pink/Orange accents
 </div>
 """, unsafe_allow_html=True)
