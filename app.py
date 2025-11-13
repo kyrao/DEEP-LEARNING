@@ -164,29 +164,37 @@ textarea {
 # -------------------------
 # Header (subtitle removed)
 # -------------------------
-header_html = f"""
-<div class="glass" style="margin-bottom:16px;">
+header_html = """
+<div class="glass" style="margin-bottom:16px; padding:25px; text-align:center;">
+
     <div class="title">🌐 Polyglot — AI Language Translator</div>
 
-    <div style="margin-top:15px; display:flex; justify-content:center; gap:60px; align-items:center;">
+    <div style="margin-top:18px; display:flex; justify-content:center; gap:80px; align-items:center; font-size:18px;">
 
         <div style="display:flex; align-items:center; gap:10px;">
             <strong>Source:</strong>
-            <img src="https://flagcdn.com/w40/{COUNTRY_CODE.get(src_lang, 'gb')}.png" class="flag">
+            <img src="https://flagcdn.com/w40/{src_flag}.png" class="flag">
             <span>{src_lang}</span>
         </div>
 
         <div style="display:flex; align-items:center; gap:10px;">
             <strong>Target:</strong>
-            <img src="https://flagcdn.com/w40/{COUNTRY_CODE.get(tgt_lang, 'gb')}.png" class="flag">
+            <img src="https://flagcdn.com/w40/{tgt_flag}.png" class="flag">
             <span>{tgt_lang}</span>
         </div>
 
     </div>
+
 </div>
 """
 
+src_flag = COUNTRY_CODE.get(src_lang, "gb")
+tgt_flag = COUNTRY_CODE.get(tgt_lang, "gb")
+
+header_html = header_html.format(src_flag=src_flag, tgt_flag=tgt_flag, src_lang=src_lang, tgt_lang=tgt_lang)
+
 st.markdown(header_html, unsafe_allow_html=True)
+
 
 
 
